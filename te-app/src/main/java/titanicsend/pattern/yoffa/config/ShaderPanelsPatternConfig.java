@@ -324,6 +324,18 @@ public class ShaderPanelsPatternConfig {
     }
   }
 
+  @LXCategory("Native Shaders Panels")
+  public static class ShaderBookEasy extends ConstructedShaderPattern {
+    public ShaderBookEasy(LX lx) {
+      super(lx, TEShaderView.DOUBLE_LARGE);
+    }
+
+    @Override
+    protected void createShader() {
+      addShader("shaderbook_easy.fs");
+    }
+  }
+
   @LXCategory("DREVO Shaders")
   public static class SlitheringSnake extends ConstructedShaderPattern {
     public SlitheringSnake(LX lx) {
