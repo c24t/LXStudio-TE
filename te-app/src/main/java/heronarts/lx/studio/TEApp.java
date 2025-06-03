@@ -79,6 +79,7 @@ import titanicsend.pattern.TEMidiFighter64DriverPattern;
 import titanicsend.pattern.TEPerformancePattern;
 import titanicsend.pattern.ben.*;
 import titanicsend.pattern.cesar.HandTracker;
+import titanicsend.pattern.cnk.ModelTest3D;
 import titanicsend.pattern.cnk.ShaderBookHard;
 import titanicsend.pattern.glengine.GLEngine;
 import titanicsend.pattern.glengine.ShaderPatternClassFactory;
@@ -299,6 +300,7 @@ public class TEApp extends LXStudio {
       lx.registry.addPattern(BasicRainbowPattern.class);
       lx.registry.addPattern(BassReactive.class);
       lx.registry.addPattern(BassReactiveEdge.class);
+      lx.registry.addPattern(ModelTest3D.class);
       lx.registry.addPattern(ShaderBookHard.class);
       lx.registry.addPattern(TempoReactiveEdge.class);
       lx.registry.addEffect(titanicsend.effect.BasicShaderEffect.class);
