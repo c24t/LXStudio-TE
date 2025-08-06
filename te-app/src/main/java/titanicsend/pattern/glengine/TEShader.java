@@ -301,6 +301,11 @@ public class TEShader extends GLShader implements GLShader.UniformSource {
     this.modelIndexTextureHandle = this.glEngine.textureCache.getIndexMapTexture(model);
   }
 
+  /** Get the name of the shader file */
+  public String getShaderName() {
+    return this.fragmentShader.getShaderName();
+  }
+
   // Releases native resources allocated by this shader.
   // Should be called by the pattern's dispose() function
   // when the pattern is unloaded. (Not when just

@@ -188,7 +188,7 @@ public class ShaderPatternClassFactory {
         .method(ElementMatchers.named("getShaderFile"))
         .intercept(FixedValue.value(shaderFile))
         .make()
-        .load(ClassLoader.getSystemClassLoader(), ClassLoadingStrategy.Default.INJECTION)
+        .load(Thread.currentThread().getContextClassLoader(), ClassLoadingStrategy.Default.INJECTION)
         .getLoaded();
   }
 }

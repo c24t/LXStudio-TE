@@ -27,7 +27,7 @@ public class TEAutoShaderPattern extends GLShaderPattern {
 
   // Returns the shader file path. This is intended to be overridden when we create our
   // dynamic runtime class
-  protected String getShaderFile() {
+  public String getShaderFile() {
     return "";
   }
 }
