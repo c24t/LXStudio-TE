@@ -30,19 +30,22 @@ public class ShaderPatternLister {
   // Static mapping for the 5 specific controls we want to check
   private static final Map<TEControlTag, String> CONTROL_TO_UNIFORM =
       Map.of(
-          TEControlTag.WOW1, "iWow1",
-          TEControlTag.WOW2, "iWow2",
-          TEControlTag.WOWTRIGGER, "iWowTrigger"
+          // TEControlTag.WOW1, "iWow1",
+          // TEControlTag.WOW2, "iWow2",
+          // TEControlTag.WOWTRIGGER, "iWowTrigger"
           // TEControlTag.LEVELREACTIVITY, "levelReact",
           // TEControlTag.FREQREACTIVITY, "frequencyReact"
+          TEControlTag.QUANTITY, "iQuantity"
           );
 
   // Mapping for controls that may be used in Java code without a direct reference
   private static final Map<TEControlTag, List<String>> CONTROL_TO_JAVA_TERMS =
       Map.of(
-          TEControlTag.WOW1, List.of("getWow1"),
-          TEControlTag.WOW2, List.of("getWow2"),
-          TEControlTag.WOWTRIGGER, List.of("onWowTrigger", "getWowTrigger"));
+          // TEControlTag.WOW1, List.of("getWow1"),
+          // TEControlTag.WOW2, List.of("getWow2"),
+          // TEControlTag.WOWTRIGGER, List.of("onWowTrigger", "getWowTrigger"),
+          TEControlTag.QUANTITY, List.of("getQuantity")
+      );
 
   public static void main(String[] args) {
     try {
