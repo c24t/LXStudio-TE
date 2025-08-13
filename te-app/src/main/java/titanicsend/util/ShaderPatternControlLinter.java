@@ -25,7 +25,7 @@ import java.io.IOException;
  * as the main application to initialize patterns and then prints information about each registered
  * shader pattern.
  */
-public class ShaderPatternLister {
+public class ShaderPatternControlLinter {
 
   // Static mapping for the 5 specific controls we want to check
   private static final Map<TEControlTag, String> CONTROL_TO_UNIFORM =
