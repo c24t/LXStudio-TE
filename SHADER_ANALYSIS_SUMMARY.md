@@ -126,7 +126,7 @@ The analysis found 69 shader patterns across 13 categories:
 
 Two scripts are provided:
 
-1. **ShaderPatternLister.java** - Uses full LX engine initialization (requires working build)
+1. **ShaderPatternControlLinter.java** - Uses full LX engine initialization (requires working build)
 2. **SimpleShaderLister.java** - Analyzes source code directly (works without compilation)
 
 To run the working script:
