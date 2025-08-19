@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.HashMap;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -165,6 +166,9 @@ public class ShaderPatternControlLinter {
             "Found " + issuesFound + " patterns with controls that should be disabled.");
       }
 
+      // Check for dual registration (auto + manual/constructed)
+      checkForDualRegistration(shaderPatterns);
+
       System.out.println();
       System.out.println("Summary:");
       System.out.println("--------");
@@ -187,6 +191,63 @@ public class ShaderPatternControlLinter {
     } catch (Exception e) {
       System.err.println("Error: " + e.getMessage());
       e.printStackTrace();
+    }
+  }
+
+  /** Check for patterns that are registered as both autoshaders and manual/constructed shaders. */
+  private static void checkForDualRegistration(List<ShaderPatternInfo> shaderPatterns) {
+    System.out.println();
+    System.out.println("Patterns with dual registration (auto + manual/constructed):");
+    System.out.println("===========================================================");
+
+    // Group patterns by simple class name
+    Map<String, List<ShaderPatternInfo>> patternsByName = new HashMap<>();
+    for (ShaderPatternInfo pattern : shaderPatterns) {
+      patternsByName.computeIfAbsent(pattern.className, k -> new ArrayList<>()).add(pattern);
+    }
+
+    int dualRegistrationIssues = 0;
+
+    // Check for patterns with the same name but different types
+    for (Map.Entry<String, List<ShaderPatternInfo>> entry : patternsByName.entrySet()) {
+      List<ShaderPatternInfo> patterns = entry.getValue();
+      if (patterns.size() > 1) {
+        // Check if we have both auto and manual/constructed patterns
+        boolean hasAuto = patterns.stream().anyMatch(p -> p.type.equals("Auto"));
+        boolean hasManualOrConstructed = patterns.stream()
+            .anyMatch(p -> p.type.equals("Manual") || p.type.equals("Constructed"));
+
+        if (hasAuto && hasManualOrConstructed) {
+          dualRegistrationIssues++;
+          System.out.printf("Pattern '%s' is registered as both:%n", entry.getKey());
+
+          // Show all registrations
+          for (ShaderPatternInfo pattern : patterns) {
+            String location = pattern.type.equals("Auto") 
+                ? "shader files: " + String.join(", ", pattern.shaderFileNames)
+                : "Java class: " + getJavaFilePath(pattern.patternClass);
+            System.out.printf("  - %s [%s] - %s%n", pattern.type, pattern.category, location);
+          }
+
+          // Find the shader files that need pragma removal
+          for (ShaderPatternInfo pattern : patterns) {
+            if (pattern.type.equals("Auto")) {
+              for (String shaderFile : pattern.shaderFileNames) {
+                System.out.printf("  Fix: Remove #pragma name and #pragma LXCategory from resources/shaders/%s%n", shaderFile);
+              }
+            }
+          }
+          System.out.println();
+        }
+      }
+    }
+
+    if (dualRegistrationIssues == 0) {
+      System.out.println("No patterns found with dual registration!");
+    } else {
+      System.out.println(
+          "Found " + dualRegistrationIssues + " patterns registered as both auto and manual/constructed shaders.");
+      System.out.println("Remove #pragma name and #pragma LXCategory from shader files to fix.");
     }
   }
 

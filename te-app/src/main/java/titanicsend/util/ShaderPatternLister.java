@@ -27,6 +27,14 @@ public class ShaderPatternLister {
 
   public static void main(String[] args) {
     try {
+      // Parse command line arguments
+      boolean tableFormat = false;
+      for (String arg : args) {
+        if ("--table".equals(arg) || "-t".equals(arg)) {
+          tableFormat = true;
+        }
+      }
+      
       System.out.println("Initializing LX Engine and TE Plugin...");
 
       // Initialize LX engine in headless mode
@@ -53,6 +61,7 @@ public class ShaderPatternLister {
           info.fullClassName = patternClass.getName();
           info.type = getShaderPatternType(patternClass);
           info.category = getPatternCategory(patternClass);
+          info.filePath = getJavaFilePath(patternClass);
           info.shaderFileNames = getShaderFileNames(lx, patternClass);
           shaderPatterns.add(info);
 
@@ -70,15 +79,18 @@ public class ShaderPatternLister {
             return a.className.compareTo(b.className);
           });
 
-      String lastCategory = "";
-      for (ShaderPatternInfo pattern : shaderPatterns) {
-        if (!pattern.category.equals(lastCategory)) {
-          System.out.println("\nCategory: " + pattern.category);
-          System.out.println("--------------------------");
-          lastCategory = pattern.category;
+      if (tableFormat) {
+        // Print as formatted table
+        printTableFormat(shaderPatterns);
+      } else {
+        // Print TSV header
+        System.out.println("Category\tPattern Name\tType\tShader Files\tFile Path");
+        
+        // Print each pattern as TSV
+        for (ShaderPatternInfo pattern : shaderPatterns) {
+          String shaderFiles = String.join(", ", pattern.shaderFileNames);
+          System.out.printf("%s\t%s\t%s\t%s\t%s%n", pattern.category, pattern.className, pattern.type, shaderFiles, pattern.filePath);
         }
-        String shaderFiles = String.join(", ", pattern.shaderFileNames);
-        System.out.printf("  %-30s [%s] %s%n", pattern.className, pattern.type, shaderFiles);
       }
 
       System.out.println("Shader File Usage:");
@@ -149,6 +161,55 @@ public class ShaderPatternLister {
     return "Uncategorized";
   }
 
+  private static void printTableFormat(List<ShaderPatternInfo> shaderPatterns) {
+    // Calculate column widths
+    int categoryWidth = "Category".length();
+    int nameWidth = "Pattern Name".length();
+    int filePathWidth = "File Path".length();
+    int typeWidth = "Type".length();
+    int shaderFilesWidth = "Shader Files".length();
+    
+    for (ShaderPatternInfo pattern : shaderPatterns) {
+      categoryWidth = Math.max(categoryWidth, pattern.category.length());
+      nameWidth = Math.max(nameWidth, pattern.className.length());
+      filePathWidth = Math.max(filePathWidth, pattern.filePath.length());
+      typeWidth = Math.max(typeWidth, pattern.type.length());
+      String shaderFiles = String.join(", ", pattern.shaderFileNames);
+      shaderFilesWidth = Math.max(shaderFilesWidth, shaderFiles.length());
+    }
+    
+    // Print header
+    String headerFormat = "| %-" + categoryWidth + "s | %-" + nameWidth + "s | %-" + typeWidth + "s | %-" + shaderFilesWidth + "s | %-" + filePathWidth + "s |%n";
+    System.out.printf(headerFormat, "Category", "Pattern Name", "Type", "Shader Files", "File Path");
+    
+    // Print separator
+    String separator = "|" + "-".repeat(categoryWidth + 2) + "|" + "-".repeat(nameWidth + 2) + "|" + "-".repeat(typeWidth + 2) + "|" + "-".repeat(shaderFilesWidth + 2) + "|" + "-".repeat(filePathWidth + 2) + "|";
+    System.out.println(separator);
+    
+    // Print data rows
+    String rowFormat = "| %-" + categoryWidth + "s | %-" + nameWidth + "s | %-" + typeWidth + "s | %-" + shaderFilesWidth + "s | %-" + filePathWidth + "s |%n";
+    for (ShaderPatternInfo pattern : shaderPatterns) {
+      String shaderFiles = String.join(", ", pattern.shaderFileNames);
+      System.out.printf(rowFormat, pattern.category, pattern.className, pattern.type, shaderFiles, pattern.filePath);
+    }
+  }
+
+  private static String getJavaFilePath(Class<? extends LXPattern> patternClass) {
+    // Auto-generated shader patterns don't have corresponding Java files
+    if (TEAutoShaderPattern.class.isAssignableFrom(patternClass)) {
+      return "";
+    }
+    
+    String className = patternClass.getName();
+    // Handle inner classes - remove everything after the first $
+    if (className.contains("$")) {
+      className = className.substring(0, className.indexOf("$"));
+    }
+    // Convert package notation to file path
+    String filePath = className.replace(".", "/");
+    return "src/main/java/" + filePath + ".java";
+  }
+
   private static Set<String> getShaderFileNames(LX lx, Class<? extends LXPattern> patternClass) {
     Set<String> shaderFileNames = new HashSet<>();
     try {
@@ -174,6 +235,7 @@ public class ShaderPatternLister {
     String fullClassName;
     String type;
     String category;
+    String filePath;
     Set<String> shaderFileNames = new HashSet<>();
   }
 }
